@@ -3,6 +3,10 @@ Sociss Weather is simple application get weather data from Yahoo API and show to
 
 # Author
 
-**Name:** Nguyen Huu Quyen 
+**Name:** Nguyen Huu Quyen ( Nguyễn Hữu Quyền )
+
 **Email:** nghuuquyen@gmail.com
-**Website** (https://sociss.edu.vn/)[Sociss Class - Online Education Center]
+
+**Website:** [Sociss Class - Online Education Center](https://sociss.edu.vn/)
+
+**Profile Page:** [Nguyen Huu Quyen - Profile Page ](https://sociss.edu.vn/users/nghuuquyen)
