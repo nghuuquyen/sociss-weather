@@ -30,7 +30,6 @@ mvn install
 You must run server TCP first. It live in `server` module, after that you will run `client`.
 
 # Project đang trong giai đoạn phát triển nên vui lòng liên hệ tác giả hoặc tạo Issues nếu cần thông tin
--------------------
 
 Hướng dẫn trên chỉ cần làm đến bước 3. Còn lại thì sử dụng Eclipse để chạy project. Bạn mở Eclipse lên, chuyển đổi sang một workspace mới cho dễ nhìn nếu cần (Khuyến nghị nên làm thế). Import project -> Exit Maven Project -> Trỏ đến thư mục sociss-weather mà git clone về là được. Nhấn Import
 
