@@ -25,7 +25,7 @@ public class WeatherTCPServiceImpl implements WeatherTCPService {
 			// Step 2. Write message to server, in this case it write city name
 			OutputStream outToServer = client.getOutputStream();
 			out = new DataOutputStream(outToServer);
-			out.writeUTF(cityName);
+			out.writeUTF("weather --city=\"" + cityName + "\"");
 
 			// Step 3. Get response from server
 			is = new DataInputStream(client.getInputStream());
