@@ -10,7 +10,7 @@ public class StartTCPClient {
 	 */
 	public static void main(String[] args) {
 		WeatherTCPService weatherService = new WeatherTCPServiceImpl();
-		String weatherInfo = weatherService.getWeatherInfoByCityName("Tỉnh Sóc Trăng");
+		String weatherInfo = weatherService.getWeatherInfoByCityName("Da Nang");
 		System.out.println(weatherInfo);
 	}
 }
