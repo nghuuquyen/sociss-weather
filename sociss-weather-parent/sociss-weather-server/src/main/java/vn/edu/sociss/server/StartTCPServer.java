@@ -8,7 +8,7 @@ public class StartTCPServer {
 			Thread t = new WeatherTCPServer(8000);
 			t.start();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e);
 		}
 	}
 }

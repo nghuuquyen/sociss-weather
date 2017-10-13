@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import vn.edu.sociss.services.exception.InvalidCommand;
 import vn.edu.sociss.services.exception.NotFoundCommand;
@@ -29,10 +30,11 @@ public class WeatherTCPServer extends Thread {
 			try {
 				Socket socket = serverSocket.accept();
 				System.out.println("New Client " + socket.getInetAddress());
-				
+
 				new Thread(new HandleRequest(socket)).start();
-			} 
-			catch (IOException e) {
+			} catch (SocketTimeoutException e) {
+				// Do nothing.
+			} catch (IOException e) {
 				System.err.println(e);
 			}
 		}
@@ -56,8 +58,9 @@ public class WeatherTCPServer extends Thread {
 
 				try {
 					if (cmdString.startsWith("weather")) {
-						command = CommandBuilder.getWeatherCommand(cmdString);
-					} 
+						command = CommandBuilder.parseWeatherCommand(cmdString);
+					}
+					// Allow more check blocks here.
 					else {
 						throw new NotFoundCommand(cmdString + " not found.");
 					}
@@ -66,10 +69,10 @@ public class WeatherTCPServer extends Thread {
 					socket.close();
 				}
 
-				if(command != null) {
+				if (command != null) {
 					out.writeUTF(command.execute().getString());
 				}
-				
+
 				out.close();
 				socket.close();
 			} catch (IOException e) {

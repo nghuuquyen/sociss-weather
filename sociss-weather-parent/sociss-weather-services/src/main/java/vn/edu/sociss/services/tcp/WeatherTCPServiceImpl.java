@@ -15,6 +15,7 @@ public class WeatherTCPServiceImpl implements WeatherTCPService {
 		DataOutputStream out = null;
 
 		// TODO: Need find solution for avoid hard code here.
+		// Can i load from properties file.
 		String serverName = "127.0.0.1";
 		int port = 8000;
 
