@@ -14,7 +14,7 @@ public class WeatherCommandParser {
 	static WeatherCommand parse(String cmd) throws InvalidCommand {
 		int cityNameIndex = cmd.indexOf("--city=\"");
 		String cityName;
-
+		
 		if (cityNameIndex != -1) {
 			cityName = cmd.substring(cityNameIndex + 8, cmd.indexOf("\"", cityNameIndex + 8));
 		} else {
