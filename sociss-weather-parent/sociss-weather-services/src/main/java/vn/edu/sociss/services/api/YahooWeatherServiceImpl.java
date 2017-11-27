@@ -15,7 +15,7 @@ import vn.edu.sociss.services.https.SimpleHTTPHelper;
 
 public class YahooWeatherServiceImpl implements YahooWeatherService {
 	String API_URL = "https://query.yahooapis.com/v1/public/yql";
-
+	
 	public Weather getWeatherByCityName(String cityName) {
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -31,7 +31,7 @@ public class YahooWeatherServiceImpl implements YahooWeatherService {
 			JsonNode root = mapper.readTree(res.getBody());
 			JsonNode channel = root.path("query").path("results").path("channel");
 			// Here is two fields contain needed data.
-
+			JsonNode atmosphere = channel.path("atmosphere");
 			JsonNode location = channel.path("location");
 			JsonNode wind = channel.path("wind");
 			JsonNode condition = channel.path("item").path("condition");
@@ -39,9 +39,11 @@ public class YahooWeatherServiceImpl implements YahooWeatherService {
 			// Get Data
 			final int _temp = condition.path("temp").asInt();
 			final int _windSpeed = wind.path("speed").asInt();
+			final int _humidity = atmosphere.path("humidity").asInt();
 			final String _cityName = location.path("city").asText() + " " + location.path("conutry");
-
-			return new Weather(_cityName, _temp, _windSpeed);
+			
+			
+			return new Weather(_cityName, _temp, _humidity, _windSpeed);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

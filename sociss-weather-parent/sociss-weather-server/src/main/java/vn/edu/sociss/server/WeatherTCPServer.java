@@ -71,7 +71,11 @@ public class WeatherTCPServer extends Thread {
 				}
 
 				if (command != null) {
-					out.writeUTF(command.execute().getString());
+					if (cmdString.indexOf("--json") != -1) {
+						out.writeUTF(command.execute(true).getString());
+					} else {
+						out.writeUTF(command.execute().getString());
+					}
 				}
 
 				out.close();
