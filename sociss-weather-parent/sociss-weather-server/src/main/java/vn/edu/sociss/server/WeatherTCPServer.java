@@ -51,9 +51,10 @@ public class WeatherTCPServer extends Thread {
 			try {
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				DataInputStream in = new DataInputStream(socket.getInputStream());
-
 				// Read command string from client.
-				String cmdString = in.readUTF();
+				byte[] data = new byte[1024];
+				in.read(data);
+				String cmdString = new String(data);
 				Command command = null;
 
 				try {
@@ -70,12 +71,17 @@ public class WeatherTCPServer extends Thread {
 				}
 
 				if (command != null) {
-					out.writeUTF(command.execute().getString());
+					if (cmdString.indexOf("--json") != -1) {
+						out.writeUTF(command.execute(true).getString());
+					} else {
+						out.writeUTF(command.execute().getString());
+					}
 				}
 
 				out.close();
 				socket.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 				System.err.println(e);
 			}
 		}

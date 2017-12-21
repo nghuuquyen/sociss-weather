@@ -1,16 +1,26 @@
 package vn.edu.sociss.models;
 
 public class Weather {
-
+	
 	private String cityName;
 	private int temperature;
 	private int windSpeed;
+	private int humidity;
 
-	public Weather(String cityName, int temperature, int windSpeed) {
+	public Weather(String cityName, int temperature,int humidity, int windSpeed) {
 		super();
 		this.cityName = cityName;
 		this.temperature = temperature;
 		this.windSpeed = windSpeed;
+		this.humidity = humidity;
+	}
+
+	public int getHumidity() {
+		return humidity;
+	}
+
+	public void setHumidity(int humidity) {
+		this.humidity = humidity;
 	}
 
 	public String getCityName() {
@@ -39,8 +49,9 @@ public class Weather {
 
 	@Override
 	public String toString() {
-		return "City " + this.cityName + "," 
-				+ "Temp: " + this.temperature + " F," 
-				+ "Wind Speed: " + this.windSpeed + " Mph.";
+		return "City: " + this.cityName + "," 
+				+ "Temperature: " + this.temperature + " F," 
+				+ "Wind Speed: " + this.windSpeed + " Mph,"
+				+ "Humidity: " + this.humidity + "%.";
 	}
 }
