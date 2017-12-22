@@ -213,6 +213,18 @@ Trước khi đi sâu vào phân tích chức năng và cách cài đặt từng
 
 Hình 2.1 - Sơ đồ triển khai ứng dụng thực tế trên môi trường Linux 
 
+Trong đó cả hai khối web client và wether TCP server sẽ được triển khai trên cùng một máy chủ (Có thể làm máy tính cá nhân hoặc máy chủ VPS). 
+
+![Main server ](./images/sw-main-server.jpg  "Main server ")
+
+
+Hình 2.2 - Sơ đồ triển khai TCP server và client web server 
+
+Ngoài ra, mình mặc định hai khối đầu cuối là máy tính của người dùng và hệ thống Yahoo Endpoint API xem như là đã có sẵn.
+
+![Other devices](/home/nghuuquyen/eclipse-workspace/sociss-weather/docs/images/sw-other-devices.jpg  "Other devices")
+
+
 Trong mô hình trên khối server được chia thành 4 module nhỏ bao gồm: 
 
 1) `weather-models.jar`  chứa các đối tượng dữ liệu và nghiệp vụ.
@@ -232,11 +244,21 @@ Khối Client được viết bằng Node.js có trách nhiệm cung cấp giao 
 
 ### 3.1 Với hệ điều hành Linux 
 
-.... Hướng dẫn ....
+.... Hướng dẫn triển khai gói đã build sẵn ....
 
 ### 3.2 Với hệ điều hành Windows
 
-..... Hướng dẫn .....
+.... Hướng dẫn triển khai gói đã build sẵn ....
+
+### 3.3 Hướng dẫn xây dựng gói triển khai bằng mã nguồn 
+
+**3.3.1) Khối Weather TCP Server**
+
+Dùng Maven + tạo Shell Script 
+
+ **3.3.2) Khối Client Web Server**
+
+Dùng Pkg + tạo Shell Script
 
 
 # 4. Hình ảnh chạy thử ứng dụng 
@@ -260,7 +282,7 @@ Hình 3.1 - Chạy thử ứng dụng và xem thông tin thời tiết thành ph
 
  
 
-# 6. Sơ đồ tuần tự mô tả nghiệp vụ truy vấn thông tin thời tiết ở TCP Server 
+# 6. Nghiệp vụ truy vấn thông tin thời tiết ở TCP Server 
 
 Để phân tích sâu hơn vào mã lệnh bên trong, thì đầu tiên mình sẽ giới thiệu sơ đồ tuần tự mô tả các tương tác sẽ xảy ra trong nghiệp vụ xử lý truy vấn thông tin thời tiết từ client gửi đến server.
 
@@ -476,6 +498,283 @@ Với dữ liệu trả về từ Yahoo Endpoint là mỗi chuỗi JSON nên s�
 - **Mô tả thời tiết hiện tại** (query.item.condition.text)
 
 Như đã đề cập ở phần phân tích. Trong đoạn mã trên `Weather` là đối tượng đóng vai trò DTO (Data Transfer Object) để các lớp nghiệp vụ khác có thể thực thi các tính toán dễ dàng hơn.
+
+
+# 7. Nghiệp vụ truy vấn và hiển thị thông tin thời tiết ở website client
+
+Đầu tiên để dễ quan sát và hình dung nghiệp vụ, mình sẽ trình bày sơ đồ hoạt động, mô tả nghiệp vụ diễn ra khi người dùng mở trang chủ ứng dụng và tiến hành yêu cầu xem thông tin thời tiết của một thành phố bất kỳ.
+
+
+![Sơ đồ hoạt động xem thời tiết](./images/sw-client-activity.jpg  "Sơ đồ hoạt động xem thời tiết")
+
+Sau khi tải trang chủ, thì mỗi khi người dùng nhấp vào vị trí thành phố trên bản đồ, thì một popup thông tin thời tiết của thành phố đó sẽ hiển thị  ra như sau.
+
+![weather popup ](./images/weather-popup.png  "weather popup ")
+
+
+Để làm được việc này thì mình làm từng bước như sau.
+
+**1) Hiển thị trang chủ khi người dùng truy cập vào**
+
+Để hiển thị trang chủ khi người dùng truy cập vào, trong Node.js mình cần gắn kết một URL đến một xử lý middleware như dưới đây.
+
+```javascript
+app.use(function renderHomepage(req, res, next) {
+  fs.readFile(path.resolve('./public/index.html'), function(data) {
+    res.writeHead(200, { 'Content-type':'text/html' });
+    res.end(data);
+  });
+});
+```
+
+Đoạn code trên sẽ khởi chạy để đáp ứng mọi request vào ứng dụng, và nó sẽ nạp một tệp tin index.html từ đĩa cứng và trả về cho trình duyệt người dùng.
+
+**2) Xử lý khi người dùng nhấp và bản đồ**
+
+Trong ứng dụng này, để tạo ra bản đồ mình sử dụng tính năng Image Map, một tính năng khá quen thuộc trong HTML. Với tính năng này, mình có thể chỉ ra được một vùng chọn trên một hình ảnh và gắn kết các hàm sẽ được kích hoạt (function) mỗi khi người dùng nhấp chuột vào vùng chọn đó.
+
+Cụ thể như sau 
+
+```html 
+<div class="map-image">
+	<img id="map" src="/images/vietnam-map.jpg" alt="VietNamMap" usemap="VietNamMap" />
+	<map id="map-areas" name="VietNamMap">
+		<area shape="rect" alt="Đà Nẵng" title="da nang" coords="538,611,603,634" />
+		<area shape="rect" alt="Thừa Thiên Huế" title="" coords="475,586,532,620"  />
+		 .... More items ......
+	</map>
+</div>
+```
+với 
+
+```html
+<area shape="rect" alt="Đà Nẵng" title="da nang" coords="538,611,603,634" />
+```
+
+Là một hình chữ nhật có tọa độ `538,611,603,634` và có alt là `Đà Nẵng` đây là thuộc tính mà sau này sẽ dùng DOM để truy xuất lấy ra tiên thành phố được chọn.
+
+Trên thực tế để làm ra Image Map như trên, thì mình dùng một công cụ Online tên gọi là `Online Image Map Editor` có thể sử dụng thông qua URL sau http://maschek.hu/imagemap/imgmap/ . Với sự hỗ trợ của công cụ này, chúng ta có thể nhanh chóng tạo ra những Image map với nhiều vùng chọn phức tạp.
+
+
+Tiếp theo, để có thể gắn sự kiện nhập chuột mỗi khi người dùng nhấp vào các điểm trên bản đồ thì mình dùng đoạn mã sau.
+ 
+
+```javascript 
+bindingClickEventToMap();
+
+/*
+* @name bindingClickEventToMap
+* @description
+* Binding click event to map area for handle get information.
+*/
+function bindingClickEventToMap() {
+  var items = document.getElementById("map-areas").children;
+
+  for(var i in items ) {
+    items[i].addEventListener('click', showWeather);
+  }
+}
+```
+
+Hàm này sẽ được gọi ngay sau khi trang load thành công ,và gán hàm showWeather vào tất cả các thành phần con của phần tử map-areas. 
+
+
+Để có thể hiển thị popup weather thì mình xử dụng đoạn mã như sau.
+
+```javascritp
+/**
+* @name showWeather
+* @description
+* Show weather modal of selected city.
+*
+* @param  {object} event Mouse clicked event.
+*/
+function showWeather(event) {
+  var _cityName = event.target.getAttribute('alt');
+
+  getCityWeather(_cityName, function(httpResponse) {
+
+    var weather = coverJSONToObject(httpResponse.responseText);
+    if(weather) {
+      writeWeatherDataToPopupCard(weather);
+      showPopup(event, WEATHER_CARD_ID);
+    }
+  });
+}
+```
+
+Đầu tiên là gọi lên Web Client Server để lấy dữ liệu thời tiết bằng HTTP với đường dẫn là /api/weather?city=[City_Name] 
+
+Mã lệnh của hàm getCityWeather(). 
+
+```javascript 
+/**
+* @name getCityWeather
+* @description
+* Get city weather by city name.
+*
+* @param  {string}   cityName City name for get weather
+* @param  {Function} cb       callback after got data
+*/
+function getCityWeather(cityName, cb) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      cb(xhttp);
+    }
+  };
+
+  xhttp.open('GET', '/api/weather?city=' + cityName + ', Việt Nam', true);
+  xhttp.send();
+}
+```
+
+Sau đó khi nhận dữ liệu trả về từ Web Client Server thì tiến hành ghi dữ liệu lên popup như sau.
+
+```javascipt 
+function writeWeatherDataToPopupCard(weather) {
+  $('#WeatherCard #cityName').text(weather.cityName);
+  // Cover C to F, We have C = 5/9 (F – 32)
+  $('#WeatherCard #temp').text(Math.ceil((5 / 9) * (weather.temperature - 32)));
+  // Cover Mph to Km/h
+  $('#WeatherCard #wind').text(Math.ceil(weather.windSpeed * 1.6));
+}
+
+function coverJSONToObject(string) {
+  try {
+    return JSON.parse(string);
+  } catch(err) {
+    return null;
+  }
+}
+```
+
+Trong đó popup thực chất là một đoạn mã HTML được ẩn ở trang chủ như sau.
+
+```html
+  <div id="WeatherCard" class="weather-card">
+
+    <div class="card-body">
+      <p>
+        <b>Thành phố </b> <span id="cityName">Da Nang</span>
+      </p>
+      <p>
+        <span id="temp">20</span> <sup>°</sup> C - Độ Ẩm <span id="humidity">82%</span>
+      </p>
+      Tốc độ gió <span id="wind">45</span> Km/h
+    </div>
+
+    <div class="card-footer">
+      <button class="close-button" type="button"
+      onclick="closePopup('WeatherCard')">
+      Close </button>
+    </div>
+  </div>
+```
+
+Ngoài ra, có một kỹ thuật khác không được đề cập ở đây đó là lấy vị trí khi người dùng nhấp chuột để hiển thị popup tại đó các bạn có thể đọc thêm ở tệp app.js ở thư mục `/public/js/app.js`
+
+
+**3) Xử lý ở client web server để kết nối lên TCP server lấy thông tin thời tiết** 
+
+Như đã trình bày ở trên, trình duyệt người dùng sẽ gọi một AJAX request có URL  `/api/weather?city=[City_Name]` để lấy thông tin thời tiết. Để làm được điều này ở web client server sẽ có đoạn mã như sau.
+
+
+```javascript
+app.use('/api/weather', function(req, res) {
+  const cityName = req.query.city || '';
+  logger.info(`Called API for get weather city ${cityName}`);
+
+  weather.getCityWeather(cityName).then(data => {
+    res.writeHead(200, { 'Content-type' : 'application/json' });
+    res.write(data);
+    res.end();
+  });
+});
+```
+
+Mục đích là để tiếp nhận và xử lý HTTP request cho đường dẫn `/api/weather?city=[City_Name]`. Sau khi lấy ra param city name từ request thì sẽ tiến hành gọi hàm getCityWeather của module `WeatherTCPService` để lấy thông tin. Tại module `WeatherTCPService` sẽ thực hiện mở kết nối TCP đến cổng 5000 của Weather TCP server và thực hiện truyền dòng lệnh truy vấn. Code thực hiện như sau
+
+```javascript
+const net = require('net');
+const client = new net.Socket();
+const logger = require('./logger');
+// Excute load environment variable from .env file.
+require('dotenv').config();
+
+const HOST = process.env.WEATHER_SERVER_HOST || '127.0.0.1';
+const PORT = process.env.WEATHER_SERVER_PORT || 8000;
+
+/**
+* @name getCityWeather
+* @description
+* Get city weather by city name.
+*
+* @param  {string} cityName String city name.
+* @return {object} weather object
+*/
+function getCityWeather(cityName) {
+  return new Promise((resolve, reject) => {
+    client.connect(PORT, HOST, function() {
+      logger.info(`Connect to ${HOST} on port ${PORT} for get data`);
+      client.setEncoding('utf8');
+      client.write(`weather --city="${cityName} --json"`);
+      client.end();
+    });
+
+    client.on('data', function(data) {
+      logger.info(`Received data from server for ${cityName}`, data);
+      // Because first character is lenght of string.
+      resolve(data.substring(2));
+      // kill client after server's response
+      client.destroy();
+    });
+
+    client.on('error', function(err) {
+      logger.error(err);
+      reject(err);
+    });
+
+    client.on('close', function() {
+      logger.info(`Close connection to ${HOST} on port ${PORT}`);
+    });
+  });
+}
+
+```
+
+Lúc này Client sẽ gửi lên Server dòng lệnh dạng `weather --city [City_Name]` và TCP Server sẽ xử lý giống như đã trình bày ở **phần 6** trước đó trong tài liệu này.
+
+
+Lúc này dữ liệu trả về sẽ được gửi trả cho client bằng cách.
+
+```javascript
+  weather.getCityWeather(cityName).then(data => {
+    res.writeHead(200, { 'Content-type' : 'application/json' });
+    res.write(data);
+    res.end();
+  });
+```
+
+Chú ý việc thiết lập ` 'Content-type' : 'application/json' ` là vô cùng quan trọng, nếu không trình duyệt sẽ hiển là dạng text/html.
+
+
+
+# 8. Kiến thức học được qua đồ án 
+
+............
+
+
+
+# 9. Phương án mở rộng 
+
+...........
+
+
+# 10. Kết luận 
+
+
+...........
 
 
 
