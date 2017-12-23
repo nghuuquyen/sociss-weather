@@ -1,3 +1,33 @@
+# Mục Lục 
+
+**1) Yêu cầu và mục đích chọn đề tài** 
+
++ Yêu cầu đề tài
++ Mục đích chọn đề tài
++ Phân tích đề tài và phương án giải quyết
+  
+**2) Sơ đồ triển khai**
+
+**3) Cách triển khai chạy thử ứng dụng**
+
++ Chạy trên hệ điều hành Linux 
++ Chạy trên hệ điều hành Windows 
+     
+**4) Hình ảnh chạy thử ứng dụng**
+
+**5) Sơ đồ hoạt động mô tả nghiệp vụ hệ thống**
+
+**6) Nghiệp vụ truy vấn thông tin thời tiết ở TCP Server**
+
+**7) Nghiệp vụ truy vấn và hiển thị thông tin thời tiết ở Website Client**
+
+**8) Kiến thức học được qua đồ án**
+
+**9) Phương án mở rộng**
+
+**10) Kết luận**
+
+
 # 1. Yêu cầu và mục đích chọn đề tài 
 
 ### 1.1  Yêu cầu đề tài 
@@ -229,7 +259,7 @@ Khối client viết bằng Node.js sẽ đảm nhiệm các công việc sau:
 
 2) Máy chủ gọi phương thức accept() của lớp ServerSocket. Phương pháp này đợi cho đến khi một máy khách kết nối đến máy chủ trên cổng đã cho.
 
-3)Trong khi máy chủ đang chờ đợi, một máy khách khởi tạo đối tượng Socket, xác định tên máy chủ (IP hoặc domain) và số cổng để kết nối.
+3) Trong khi máy chủ đang chờ đợi, một máy khách khởi tạo đối tượng Socket, xác định tên máy chủ (IP hoặc domain) và số cổng để kết nối.
 
 4) Đối tượng socket của máy khách cố gắng kết nối máy khách tới máy chủ đã chỉ định và số cổng. Nếu truyền thông được thiết lập, máy khách bây giờ có một đối tượng socket có khả năng giao tiếp với máy chủ.
 
