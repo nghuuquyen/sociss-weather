@@ -593,6 +593,13 @@ Hình 3.1 - Chạy thử ứng dụng và xem thông tin thời tiết thành ph
 Để có cái nhìn tổng quát về luồng nghiệp vụ và luồng thông tin đi trong ứng dụng mỗi khi có yêu cầu tra cứu thời tiết từ trình duyệt người dùng, thì em xin trình bày sơ đồ hoạt động tổng của ứng dụng như sau.
 
 
+![Application activity ](./images/sw-application-activity.jpg  "Application activity ")
+
+Từ sơ đồ trên sẽ dễ dàng thấy rằng, toàn bộ dữ liệu thời tiết sẽ lấy từ Yahoo, định dạng dữ liệu trả về từ Yahoo để xử lý ở ứng dụng là định dạng JSON.
+
+Giao diện ở website sẽ thông qua Javascript tương tác với DOM để hiển thị, nhờ đó tương tác với người dùng sẽ được cải thiện tốt hơn.
+
+
  
 # 6. Nghiệp vụ truy vấn thông tin thời tiết ở TCP Server 
 
